@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import { Input, Button, Space, message } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import { useTodos } from "@entities/Todo/model/hooks";
 import { useTranslation } from "react-i18next";
 
-export const AddTodo: React.FC = () => {
+interface AddTodoProps {
+	onAdd: (text: string) => Promise<void>;
+}
+
+export const AddTodo: React.FC<AddTodoProps> = ({ onAdd }) => {
 	const [text, setText] = useState("");
 	const [messageApi, contextHolder] = message.useMessage();
-	const { addTodo } = useTodos();
 	const { t } = useTranslation();
 
 	const handleSubmit = () => {
@@ -16,7 +18,7 @@ export const AddTodo: React.FC = () => {
 			return;
 		}
 
-		addTodo(text);
+		onAdd(text);
 		setText("");
 		messageApi.success(t("add.success"));
 	};

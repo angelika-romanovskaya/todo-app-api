@@ -1,81 +1,49 @@
-import { useContext, useCallback, useMemo } from "react";
-import { TodoContext } from "./context";
-import { FilterType } from "./types";
+import { useTasksApi } from "@shared/hooks/useTasksApi";
+import { useMemo } from "react";
 import { FILTER_TYPES } from "@shared/config/constants";
+import type { FilterType } from "./types";
 
-export function useTodoContext() {
-	const context = useContext(TodoContext);
-	if (!context) {
-		throw new Error("useTodoContext must be used within TodoProvider");
-	}
-	return context;
-}
-
-export function useTodos() {
-	const { state, dispatch } = useTodoContext();
-
-	const addTodo = useCallback(
-		(text: string) => dispatch({ type: "ADD_TODO", payload: text }),
-		[dispatch],
-	);
-
-	const toggleTodo = useCallback(
-		(id: string) => dispatch({ type: "TOGGLE_TODO", payload: id }),
-		[dispatch],
-	);
-
-	const deleteTodo = useCallback(
-		(id: string) => dispatch({ type: "DELETE_TODO", payload: id }),
-		[dispatch],
-	);
-
-	const editTodo = useCallback(
-		(id: string, text: string) =>
-			dispatch({ type: "EDIT_TODO", payload: { id, text } }),
-		[dispatch],
-	);
-
-	const clearCompleted = useCallback(
-		() => dispatch({ type: "CLEAR_COMPLETED" }),
-		[dispatch],
-	);
-
-	const setFilter = useCallback(
-		(filter: FilterType) => dispatch({ type: "SET_FILTER", payload: filter }),
-		[dispatch],
-	);
+export const useTodos = (filter: FilterType) => {
+	const {
+		todos,
+		loading,
+		error,
+		addTodo,
+		toggleTodo,
+		editTodo,
+		deleteTodo,
+		clearCompleted,
+	} = useTasksApi();
 
 	const filteredTodos = useMemo(() => {
-		switch (state.filter) {
+		switch (filter) {
 			case FILTER_TYPES.ACTIVE:
-				return state.todos.filter((todo) => !todo.completed);
+				return todos.filter((t) => !t.completed);
 			case FILTER_TYPES.COMPLETED:
-				return state.todos.filter((todo) => todo.completed);
+				return todos.filter((t) => t.completed);
 			default:
-				return state.todos;
+				return todos;
 		}
-	}, [state.todos, state.filter]);
+	}, [todos, filter]);
 
 	const stats = useMemo(
 		() => ({
-			total: state.todos.length,
-			active: state.todos.filter((todo) => !todo.completed).length,
-			completed: state.todos.filter((todo) => todo.completed).length,
+			total: todos.length,
+			active: todos.filter((t) => !t.completed).length,
+			completed: todos.filter((t) => t.completed).length,
 		}),
-		[state.todos],
+		[todos],
 	);
 
 	return {
-		state,
-		todos: state.todos,
-		filter: state.filter,
 		filteredTodos,
 		stats,
+		loading,
+		error,
 		addTodo,
 		toggleTodo,
-		deleteTodo,
 		editTodo,
+		deleteTodo,
 		clearCompleted,
-		setFilter,
 	};
-}
+};

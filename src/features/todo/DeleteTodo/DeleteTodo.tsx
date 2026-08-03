@@ -1,22 +1,21 @@
 import React from "react";
 import { Button, Popconfirm } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
-import { useTodos } from "@entities/Todo/model/hooks";
 import { useTranslation } from "react-i18next";
 
 interface DeleteTodoProps {
-	todoId: string;
+	todoId: number;
+	onDelete: (id: number) => void;
 }
 
-export const DeleteTodo: React.FC<DeleteTodoProps> = ({ todoId }) => {
-	const { deleteTodo } = useTodos();
+export const DeleteTodo: React.FC<DeleteTodoProps> = ({ todoId, onDelete }) => {
 	const { t } = useTranslation();
 
 	return (
 		<Popconfirm
 			title={t("delete.aria")}
 			description={t("delete.confirm")}
-			onConfirm={() => deleteTodo(todoId)}
+			onConfirm={() => onDelete(todoId)}
 			okText={t("confirm.yes")}
 			cancelText={t("confirm.no")}
 		>

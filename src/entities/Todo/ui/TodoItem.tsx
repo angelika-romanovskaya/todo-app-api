@@ -2,22 +2,28 @@ import React, { useState, useRef, useEffect } from "react";
 import { Button, Space, Typography, Input } from "antd";
 import { EditOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { ITodo } from "../model/types";
-import { useTodos } from "../model/hooks";
-import { ToggleTodo } from "@features/ToggleTodo";
-import { DeleteTodo } from "@features/DeleteTodo";
+import { ToggleTodo } from "@features/todo/ToggleTodo";
+import { DeleteTodo } from "@features/todo/DeleteTodo";
 import { useTheme } from "@app/providers/ThemeProvider";
 
 const { Text } = Typography;
 
 interface TodoItemProps {
 	todo: ITodo;
+	onEdit: (id: number, text: string) => void;
+	onToggle: (id: number) => void;
+	onDelete: (id: number) => void;
 }
 
-export const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
+export const TodoItem: React.FC<TodoItemProps> = ({
+	todo,
+	onEdit,
+	onToggle,
+	onDelete,
+}) => {
 	const [isEditing, setIsEditing] = useState(false);
-	const [editText, setEditText] = useState(todo.text);
+	const [editText, setEditText] = useState(todo.title);
 	const inputRef = useRef<any>(null);
-	const { editTodo } = useTodos();
 	const { isDark } = useTheme();
 
 	useEffect(() => {
@@ -28,19 +34,19 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
 
 	const handleEdit = () => {
 		setIsEditing(true);
-		setEditText(todo.text);
+		setEditText(todo.title);
 	};
 
 	const handleSave = () => {
 		if (editText.trim()) {
-			editTodo(todo.id, editText);
+			onEdit(todo.id, editText);
 			setIsEditing(false);
 		}
 	};
 
 	const handleCancel = () => {
 		setIsEditing(false);
-		setEditText(todo.text);
+		setEditText(todo.title);
 	};
 
 	const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -72,7 +78,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
 					minWidth: 0,
 				}}
 			>
-				<ToggleTodo todo={todo} />
+				<ToggleTodo todo={todo} onToggle={onToggle} />
 				{isEditing ? (
 					<div
 						style={{ display: "flex", flex: 1, gap: 8, alignItems: "center" }}
@@ -107,7 +113,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
 						}}
 						onDoubleClick={handleEdit}
 					>
-						{todo.text}
+						{todo.title}
 					</Text>
 				)}
 			</div>
@@ -119,7 +125,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
 					onClick={handleEdit}
 					aria-label="Edit task"
 				/>
-				<DeleteTodo todoId={todo.id} />
+				<DeleteTodo todoId={todo.id} onDelete={onDelete} />
 			</Space>
 		</div>
 	);

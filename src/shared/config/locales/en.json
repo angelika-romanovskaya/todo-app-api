@@ -47,5 +47,23 @@
 	"confirm": {
 		"yes": "Yes",
 		"no": "No"
+	},
+	"auth": {
+		"login": "Login",
+		"register": "Registration",
+		"loginButton": "Login",
+		"registerButton": "Register",
+		"email": "Email",
+		"password": "Password",
+		"enterValidEmail": "Please enter a valid email",
+		"enterPassword": "Please enter your password",
+		"passwordMinLength": "Password must be at least 6 characters",
+		"successLogin": "Logged in successfully",
+		"successRegister": "Registered successfully",
+		"wrongCredentials": "Invalid email or password",
+		"registerError": "Registration failed",
+		"noAccount": "Don't have an account?",
+		"haveAccount": "Already have an account?",
+		"logout": "Logout"
 	}
 }

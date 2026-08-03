@@ -47,5 +47,25 @@
 	"confirm": {
 		"yes": "Да",
 		"no": "Нет"
+	},
+	"auth": {
+		"login": "Вход",
+		"register": "Регистрация",
+		"loginButton": "Войти",
+		"registerButton": "Зарегистрироваться",
+		"email": "Email",
+		"password": "Пароль",
+		"name": "Имя",
+		"enterName": "Введите ваше имя",
+		"enterValidEmail": "Введите корректный email",
+		"enterPassword": "Введите пароль",
+		"passwordMinLength": "Пароль должен быть не менее 6 символов",
+		"successLogin": "Вход выполнен успешно",
+		"successRegister": "Регистрация прошла успешно",
+		"wrongCredentials": "Неверный email или пароль",
+		"registerError": "Ошибка регистрации",
+		"noAccount": "Нет аккаунта?",
+		"haveAccount": "Уже есть аккаунт?",
+		"logout": "Выйти"
 	}
 }

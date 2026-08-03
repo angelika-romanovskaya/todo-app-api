@@ -1,0 +1,33 @@
+.auth-gate-overlay {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-height: 100vh;
+	padding: 20px;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.auth-gate-card {
+	width: 100%;
+	min-height: 300px;
+	max-width: 420px;
+	border-radius: 12px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .auth-gate-overlay {
+	background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+@media (max-width: 480px) {
+	.auth-gate-overlay {
+		padding: 0;
+	}
+	.auth-gate-card {
+		border-radius: 0;
+		box-shadow: none;
+	}
+}

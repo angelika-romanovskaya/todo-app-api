@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 
 export default defineConfig({
-	base: "/todo-app/",
+	base: process.env.BASE_URL || "/",
 	plugins: [react()],
 	resolve: {
 		alias: {

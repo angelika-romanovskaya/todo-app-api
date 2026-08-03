@@ -6,11 +6,17 @@ import {
 	ClockCircleOutlined,
 } from "@ant-design/icons";
 import { FilterType } from "@entities/Todo/model/types";
-import { useTodos } from "@entities/Todo/model/hooks";
 import { useTranslation } from "react-i18next";
 
-export const FilterTodos: React.FC = () => {
-	const { filter, setFilter } = useTodos();
+interface FilterTodosProps {
+	value: FilterType;
+	onChange: (value: FilterType) => void;
+}
+
+export const FilterTodos: React.FC<FilterTodosProps> = ({
+	onChange,
+	value,
+}) => {
 	const { t } = useTranslation();
 
 	const options = [
@@ -34,8 +40,8 @@ export const FilterTodos: React.FC = () => {
 	return (
 		<Segmented
 			options={options}
-			value={filter}
-			onChange={(value) => setFilter(value as FilterType)}
+			value={value}
+			onChange={onChange}
 			block
 			size="large"
 			style={{ marginBottom: "24px" }}
