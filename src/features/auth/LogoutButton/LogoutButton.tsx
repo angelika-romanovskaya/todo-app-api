@@ -1,9 +1,9 @@
 import React from "react";
 import { Button } from "antd";
 import { LogoutOutlined } from "@ant-design/icons";
-import { useAuth } from "@shared/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@app/providers";
 
 export const LogoutButton: React.FC = () => {
 	const { logout } = useAuth();

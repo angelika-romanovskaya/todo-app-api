@@ -5,26 +5,20 @@ import { ITodo } from "../model/types";
 import { ToggleTodo } from "@features/todo/ToggleTodo";
 import { DeleteTodo } from "@features/todo/DeleteTodo";
 import { useTheme } from "@app/providers/ThemeProvider";
+import { useTodosQuery } from "@shared/hooks/useTodosQuery";
 
 const { Text } = Typography;
 
 interface TodoItemProps {
 	todo: ITodo;
-	onEdit: (id: number, text: string) => void;
-	onToggle: (id: number) => void;
-	onDelete: (id: number) => void;
 }
 
-export const TodoItem: React.FC<TodoItemProps> = ({
-	todo,
-	onEdit,
-	onToggle,
-	onDelete,
-}) => {
+export const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
 	const [isEditing, setIsEditing] = useState(false);
 	const [editText, setEditText] = useState(todo.title);
 	const inputRef = useRef<any>(null);
 	const { isDark } = useTheme();
+	const { editTodo } = useTodosQuery();
 
 	useEffect(() => {
 		if (isEditing && inputRef.current) {
@@ -39,7 +33,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
 
 	const handleSave = () => {
 		if (editText.trim()) {
-			onEdit(todo.id, editText);
+			editTodo({ id: todo.id, text: editText });
 			setIsEditing(false);
 		}
 	};
@@ -78,7 +72,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
 					minWidth: 0,
 				}}
 			>
-				<ToggleTodo todo={todo} onToggle={onToggle} />
+				<ToggleTodo todo={todo} />
 				{isEditing ? (
 					<div
 						style={{ display: "flex", flex: 1, gap: 8, alignItems: "center" }}
@@ -125,7 +119,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
 					onClick={handleEdit}
 					aria-label="Edit task"
 				/>
-				<DeleteTodo todoId={todo.id} onDelete={onDelete} />
+				<DeleteTodo todoId={todo.id} />
 			</Space>
 		</div>
 	);

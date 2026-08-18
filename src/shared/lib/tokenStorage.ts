@@ -9,3 +9,7 @@ export const setToken = (token: string) =>
 	LocalStorageService.set(TOKEN_KEY, token);
 
 export const removeToken = () => LocalStorageService.remove(TOKEN_KEY);
+
+export const setUserEmail = (email: string) =>
+	localStorage.setItem("userEmail", email);
+export const getUserEmail = () => localStorage.getItem("userEmail");

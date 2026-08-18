@@ -6,17 +6,9 @@ import { useTheme } from "@app/providers/ThemeProvider";
 
 interface TodoListProps {
 	todos: ITodo[];
-	onEdit: (id: number, text: string) => void;
-	onToggle: (id: number) => void;
-	onDelete: (id: number) => void;
 }
 
-export const TodoList: React.FC<TodoListProps> = ({
-	todos,
-	onEdit,
-	onToggle,
-	onDelete,
-}) => {
+export const TodoList: React.FC<TodoListProps> = ({ todos }) => {
 	const { isDark } = useTheme();
 
 	if (todos.length === 0) {
@@ -32,13 +24,7 @@ export const TodoList: React.FC<TodoListProps> = ({
 			}}
 		>
 			{todos.map((todo) => (
-				<TodoItem
-					key={todo.id}
-					todo={todo}
-					onEdit={onEdit}
-					onToggle={onToggle}
-					onDelete={onDelete}
-				/>
+				<TodoItem key={todo.id} todo={todo} />
 			))}
 		</div>
 	);

@@ -1,7 +1,15 @@
-import React, { useState } from "react";
-import { Card, Typography, Space, Divider, Tag, Button } from "antd";
+import React, { useMemo, useState } from "react";
+import {
+	Card,
+	Typography,
+	Space,
+	Divider,
+	Tag,
+	Button,
+	Spin,
+	Result,
+} from "antd";
 import { UnorderedListOutlined, CheckCircleOutlined } from "@ant-design/icons";
-import { useTodos } from "@entities/Todo/model/hooks";
 import { TodoList } from "@entities/Todo/ui/TodoList";
 import { AddTodo } from "@features/todo/AddTodo";
 import { FilterTodos } from "@features/todo/FilterTodos";
@@ -11,6 +19,7 @@ import { useTranslation } from "react-i18next";
 import "./TodoWidget.css";
 import { FilterType } from "@entities/Todo/model/types";
 import { LogoutButton } from "@features/auth/LogoutButton/LogoutButton";
+import { useTodosQuery } from "@shared/hooks/useTodosQuery";
 
 const { Title } = Typography;
 
@@ -21,17 +30,40 @@ export const TodoWidget: React.FC = () => {
 		i18n.changeLanguage(newLang);
 	};
 	const [filter, setFilter] = useState<FilterType>("all");
-	const {
-		filteredTodos,
-		stats,
-		loading,
-		error,
-		addTodo,
-		toggleTodo,
-		editTodo,
-		deleteTodo,
-		clearCompleted,
-	} = useTodos(filter);
+	const { todos, isLoading, error } = useTodosQuery();
+
+	const filteredTodos = useMemo(() => {
+		switch (filter) {
+			case "active":
+				return todos.filter((t) => !t.completed);
+			case "completed":
+				return todos.filter((t) => t.completed);
+			default:
+				return todos;
+		}
+	}, [todos, filter]);
+
+	const stats = useMemo(
+		() => ({
+			total: todos.length,
+			active: todos.filter((t) => !t.completed).length,
+			completed: todos.filter((t) => t.completed).length,
+		}),
+		[todos],
+	);
+
+	if (isLoading)
+		return (
+			<Spin size="large" style={{ display: "block", margin: "100px auto" }} />
+		);
+	if (error)
+		return (
+			<Result
+				status="error"
+				title={t("common.error")}
+				subTitle={error.message}
+			/>
+		);
 
 	return (
 		<Card
@@ -71,7 +103,7 @@ export const TodoWidget: React.FC = () => {
 				</Space>
 			</div>
 
-			<AddTodo onAdd={addTodo} />
+			<AddTodo />
 			<FilterTodos onChange={setFilter} value={filter} />
 
 			<Space style={{ marginBottom: "16px" }}>
@@ -90,16 +122,11 @@ export const TodoWidget: React.FC = () => {
 				className="todo-scroll"
 				style={{ flex: 1, overflowY: "auto", marginBottom: "16px" }}
 			>
-				<TodoList
-					todos={filteredTodos}
-					onEdit={editTodo}
-					onToggle={toggleTodo}
-					onDelete={deleteTodo}
-				/>
+				<TodoList todos={filteredTodos} />
 			</div>
 
 			<Divider style={{ margin: "0 0 16px 0" }} />
-			<ClearCompleted stats={stats} onClearCompleted={clearCompleted}/>
+			<ClearCompleted stats={stats} />
 		</Card>
 	);
 };

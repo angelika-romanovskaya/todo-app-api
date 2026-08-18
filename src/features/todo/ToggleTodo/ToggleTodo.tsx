@@ -1,17 +1,19 @@
 import React from "react";
 import { Checkbox } from "antd";
 import { ITodo } from "@entities/Todo/model/types";
+import { useTodosQuery } from "@shared/hooks/useTodosQuery";
 
 interface ToggleTodoProps {
 	todo: ITodo;
-	onToggle: (id: number) => void;
 }
 
-export const ToggleTodo: React.FC<ToggleTodoProps> = ({ todo, onToggle }) => {
+export const ToggleTodo: React.FC<ToggleTodoProps> = ({ todo }) => {
+	const { toggleTodo } = useTodosQuery();
+
 	return (
 		<Checkbox
 			checked={todo.completed}
-			onChange={() => onToggle(todo.id)}
+			onChange={() => toggleTodo(todo.id)}
 			aria-label={`Mark "${todo.title}" as ${todo.completed ? "incomplete" : "complete"}`}
 		/>
 	);

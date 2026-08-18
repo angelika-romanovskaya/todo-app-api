@@ -2,15 +2,13 @@ import React, { useState } from "react";
 import { Input, Button, Space, message } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
+import { useTodosQuery } from "@shared/hooks/useTodosQuery";
 
-interface AddTodoProps {
-	onAdd: (text: string) => Promise<void>;
-}
-
-export const AddTodo: React.FC<AddTodoProps> = ({ onAdd }) => {
+export const AddTodo: React.FC = () => {
 	const [text, setText] = useState("");
 	const [messageApi, contextHolder] = message.useMessage();
 	const { t } = useTranslation();
+	const {addTodo} = useTodosQuery()
 
 	const handleSubmit = () => {
 		if (!text.trim()) {
@@ -18,7 +16,7 @@ export const AddTodo: React.FC<AddTodoProps> = ({ onAdd }) => {
 			return;
 		}
 
-		onAdd(text);
+		addTodo(text);
 		setText("");
 		messageApi.success(t("add.success"));
 	};

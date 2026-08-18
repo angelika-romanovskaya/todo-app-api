@@ -2,23 +2,23 @@ import React from "react";
 import { Button, message, Popconfirm } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
+import { useTodosQuery } from "@shared/hooks/useTodosQuery";
 
 interface ClearCompletedTodoProps {
 	stats: { total: number; active: number; completed: number };
-	onClearCompleted: () => void;
 }
 
 export const ClearCompleted: React.FC<ClearCompletedTodoProps> = ({
 	stats,
-	onClearCompleted,
 }) => {
 	const { t } = useTranslation();
 	const [messageApi, contextHolder] = message.useMessage();
+	const { clearCompleted } = useTodosQuery();
 
 	if (stats.completed === 0) return null;
 
 	const handleClear = async () => {
-		await onClearCompleted();
+		await clearCompleted();
 		messageApi.success(t("clear.success", { count: stats.completed }));
 	};
 

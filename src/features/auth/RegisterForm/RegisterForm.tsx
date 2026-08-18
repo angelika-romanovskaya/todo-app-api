@@ -4,9 +4,9 @@ import { MailOutlined, LockOutlined, UserOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { authApi } from "@shared/api/authApi";
 import { setToken } from "@shared/lib/tokenStorage";
-import { useAuth } from "@shared/hooks/useAuth";
 import { useTranslation } from "react-i18next";
 import { LocalStorageService } from "@shared/lib/localStorage";
+import { useAuth } from "@app/providers";
 
 export const RegisterForm: React.FC = () => {
 	const [loading, setLoading] = useState(false);
@@ -31,7 +31,7 @@ export const RegisterForm: React.FC = () => {
 			);
 			setToken(token);
 			LocalStorageService.set("user", JSON.stringify(values));
-			login({ ...values });
+			await login(values.email, values.password);
 			messageApi.success(t("auth.successRegister"));
 			navigate("/");
 		} catch (e: any) {

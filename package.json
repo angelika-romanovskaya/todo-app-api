@@ -11,13 +11,13 @@
 		"preview": "vite preview",
 		"predeploy": "npm run build",
 		"deploy": "gh-pages -d dist",
-		"build:primary": "vite build",
-		"build:secondary": "cross-env BASE_URL=/todo-app-api/ vite build",
-		"deploy:primary": "npm run build:primary && git checkout gh-pages && ...",
-		"deploy:secondary": "npm run build:secondary && git push secondary gh-pages"
+		"build:primary": "cross-env BASE_URL=/todo-app/  vite build ",
+		"build:secondary": "cross-env BASE_URL=/todo-app-api/ vite build"
 	},
 	"dependencies": {
 		"@ant-design/icons": "^6.3.2",
+		"@tanstack/react-query": "^5.101.4",
+		"@tanstack/react-query-devtools": "^5.101.4",
 		"antd": "^6.5.0",
 		"axios": "^1.19.0",
 		"i18next": "^26.3.4",
