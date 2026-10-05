@@ -1,20 +1,33 @@
 import React from "react";
 import { Checkbox } from "antd";
-import { ITodo } from "@entities/Todo/model/types";
-import { useTodosQuery } from "@shared/hooks/useTodosQuery";
+import { useAppDispatch, useAppSelector } from "@app/hooks";
+import { ITodo, toggleTodoStatus } from "@entities/Todo/model";
 
 interface ToggleTodoProps {
 	todo: ITodo;
 }
 
 export const ToggleTodo: React.FC<ToggleTodoProps> = ({ todo }) => {
-	const { toggleTodo } = useTodosQuery();
+	const dispatch = useAppDispatch();
+	const loading = useAppSelector((s) => s.todos.loading);
+
+	const handleChange = () => {
+		dispatch(
+			toggleTodoStatus({
+				id: todo.id,
+				isCompleted: !todo.isCompleted,
+			}),
+		);
+	};
 
 	return (
 		<Checkbox
-			checked={todo.completed}
-			onChange={() => toggleTodo(todo.id)}
-			aria-label={`Mark "${todo.title}" as ${todo.completed ? "incomplete" : "complete"}`}
+			checked={todo.isCompleted}
+			onChange={handleChange}
+			disabled={loading}
+			aria-label={`Mark "${todo.title}" as ${
+				todo.isCompleted ? "incomplete" : "complete"
+			}`}
 		/>
 	);
 };

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect } from "react";
 import {
 	Card,
 	Typography,
@@ -10,70 +10,49 @@ import {
 	Result,
 } from "antd";
 import { UnorderedListOutlined, CheckCircleOutlined } from "@ant-design/icons";
-import { TodoList } from "@entities/Todo/ui/TodoList";
+import { useTranslation } from "react-i18next";
+import { useAppDispatch, useAppSelector } from "@app/hooks";
+import "./TodoWidget.css";
+import { fetchTodos, selectStats, selectTodosError, selectTodosLoading } from "@entities/Todo/model";
+import { ThemeToggle } from "@features/ThemeToggle";
+import { LogoutButton } from "@features/auth/LogoutButton/LogoutButton";
 import { AddTodo } from "@features/todo/AddTodo";
 import { FilterTodos } from "@features/todo/FilterTodos";
+import { TodoList } from "@entities/Todo/ui/TodoList";
 import { ClearCompleted } from "@features/todo/ClearCompleted";
-import { ThemeToggle } from "@features/ThemeToggle";
-import { useTranslation } from "react-i18next";
-import "./TodoWidget.css";
-import { FilterType } from "@entities/Todo/model/types";
-import { LogoutButton } from "@features/auth/LogoutButton/LogoutButton";
-import { useTodosQuery } from "@shared/hooks/useTodosQuery";
 
 const { Title } = Typography;
 
 export const TodoWidget: React.FC = () => {
 	const { t, i18n } = useTranslation();
+	const dispatch = useAppDispatch();
+
+	const loading = useAppSelector(selectTodosLoading);
+	const error = useAppSelector(selectTodosError);
+	const stats = useAppSelector(selectStats);
+	const token = useAppSelector((s) => s.auth.token);
+
+	useEffect(() => {
+		if (token) dispatch(fetchTodos());
+	}, [dispatch, token]);
+
 	const toggleLanguage = () => {
-		const newLang = i18n.language === "en" ? "ru" : "en";
-		i18n.changeLanguage(newLang);
+		i18n.changeLanguage(i18n.language === "en" ? "ru" : "en");
 	};
-	const [filter, setFilter] = useState<FilterType>("all");
-	const { todos, isLoading, error } = useTodosQuery();
 
-	const filteredTodos = useMemo(() => {
-		switch (filter) {
-			case "active":
-				return todos.filter((t) => !t.completed);
-			case "completed":
-				return todos.filter((t) => t.completed);
-			default:
-				return todos;
-		}
-	}, [todos, filter]);
-
-	const stats = useMemo(
-		() => ({
-			total: todos.length,
-			active: todos.filter((t) => !t.completed).length,
-			completed: todos.filter((t) => t.completed).length,
-		}),
-		[todos],
-	);
-
-	if (isLoading)
+	if (loading && stats.total === 0)
 		return (
 			<Spin size="large" style={{ display: "block", margin: "100px auto" }} />
 		);
+
 	if (error)
-		return (
-			<Result
-				status="error"
-				title={t("common.error")}
-				subTitle={error.message}
-			/>
-		);
+		return <Result status="error" title={t("common.error")} subTitle={error} />;
 
 	return (
 		<Card
 			variant="borderless"
 			className="todo-widget-card"
-			style={{
-				height: "100%",
-				display: "flex",
-				flexDirection: "column",
-			}}
+			style={{ height: "100%", display: "flex", flexDirection: "column" }}
 			styles={{
 				body: {
 					flex: 1,
@@ -104,7 +83,7 @@ export const TodoWidget: React.FC = () => {
 			</div>
 
 			<AddTodo />
-			<FilterTodos onChange={setFilter} value={filter} />
+			<FilterTodos />
 
 			<Space style={{ marginBottom: "16px" }}>
 				<Tag icon={<UnorderedListOutlined />} color="blue">
@@ -122,11 +101,11 @@ export const TodoWidget: React.FC = () => {
 				className="todo-scroll"
 				style={{ flex: 1, overflowY: "auto", marginBottom: "16px" }}
 			>
-				<TodoList todos={filteredTodos} />
+				<TodoList/>
 			</div>
 
 			<Divider style={{ margin: "0 0 16px 0" }} />
-			<ClearCompleted stats={stats} />
+			<ClearCompleted />
 		</Card>
 	);
 };

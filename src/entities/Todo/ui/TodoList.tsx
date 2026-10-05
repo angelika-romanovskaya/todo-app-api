@@ -1,14 +1,12 @@
 import React from "react";
-import { ITodo } from "../model/types";
+import { useAppSelector } from "@app/hooks";
+import { selectFilteredTodos } from "../model/selectors";
 import { TodoItem } from "./TodoItem";
 import { EmptyState } from "./EmptyState";
 import { useTheme } from "@app/providers/ThemeProvider";
 
-interface TodoListProps {
-	todos: ITodo[];
-}
-
-export const TodoList: React.FC<TodoListProps> = ({ todos }) => {
+export const TodoList: React.FC = () => {
+	const todos = useAppSelector(selectFilteredTodos);
 	const { isDark } = useTheme();
 
 	if (todos.length === 0) {

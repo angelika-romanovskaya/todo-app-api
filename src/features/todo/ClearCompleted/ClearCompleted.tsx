@@ -2,24 +2,28 @@ import React from "react";
 import { Button, message, Popconfirm } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
-import { useTodosQuery } from "@shared/hooks/useTodosQuery";
+import { useAppDispatch, useAppSelector } from "@app/hooks";
+import { selectStats } from "@entities/Todo/model";
+import { clearCompleted } from "@entities/Todo/model";
 
-interface ClearCompletedTodoProps {
-	stats: { total: number; active: number; completed: number };
-}
-
-export const ClearCompleted: React.FC<ClearCompletedTodoProps> = ({
-	stats,
-}) => {
+export const ClearCompleted: React.FC = () => {
 	const { t } = useTranslation();
 	const [messageApi, contextHolder] = message.useMessage();
-	const { clearCompleted } = useTodosQuery();
+
+	const dispatch = useAppDispatch();
+	const stats = useAppSelector(selectStats);
+	const loading = useAppSelector((s) => s.todos.loading);
 
 	if (stats.completed === 0) return null;
 
 	const handleClear = async () => {
-		await clearCompleted();
-		messageApi.success(t("clear.success", { count: stats.completed }));
+		const count = stats.completed;
+
+		const result = await dispatch(clearCompleted());
+
+		if (clearCompleted.fulfilled.match(result)) {
+			messageApi.success(t("clear.success", { count }));
+		}
 	};
 
 	return (
@@ -31,12 +35,15 @@ export const ClearCompleted: React.FC<ClearCompletedTodoProps> = ({
 				onConfirm={handleClear}
 				okText={t("confirm.yes")}
 				cancelText={t("confirm.no")}
+				okButtonProps={{ loading }}
 			>
 				<Button
 					danger
 					icon={<DeleteOutlined />}
 					type="dashed"
 					style={{ marginTop: 16 }}
+					loading={loading}
+					disabled={loading}
 				>
 					{t("clear.button", { count: stats.completed })}
 				</Button>

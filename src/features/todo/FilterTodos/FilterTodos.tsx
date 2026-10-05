@@ -5,19 +5,15 @@ import {
 	CheckSquareOutlined,
 	ClockCircleOutlined,
 } from "@ant-design/icons";
-import { FilterType } from "@entities/Todo/model/types";
 import { useTranslation } from "react-i18next";
+import { useAppDispatch, useAppSelector } from "@app/hooks";
+import { selectFilter, setFilter } from "@entities/Todo/model";
+import { FilterType } from "@shared/config/constants";
 
-interface FilterTodosProps {
-	value: FilterType;
-	onChange: (value: FilterType) => void;
-}
-
-export const FilterTodos: React.FC<FilterTodosProps> = ({
-	onChange,
-	value,
-}) => {
+export const FilterTodos: React.FC = () => {
 	const { t } = useTranslation();
+	const dispatch = useAppDispatch();
+	const value = useAppSelector(selectFilter);
 
 	const options = [
 		{
@@ -41,7 +37,7 @@ export const FilterTodos: React.FC<FilterTodosProps> = ({
 		<Segmented
 			options={options}
 			value={value}
-			onChange={onChange}
+			onChange={(next) => dispatch(setFilter(next as FilterType))}
 			block
 			size="large"
 			style={{ marginBottom: "24px" }}

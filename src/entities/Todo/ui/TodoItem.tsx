@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Button, Space, Typography, Input } from "antd";
+import React, { useEffect, useRef, useState } from "react";
+import { Button, Space, Typography, Input, type InputRef } from "antd";
 import { EditOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
-import { ITodo } from "../model/types";
+import { useAppDispatch, useAppSelector } from "@app/hooks";
+import { useTheme } from "@app/providers/ThemeProvider";
+import { ITodo, updateTodoText } from "../model";
 import { ToggleTodo } from "@features/todo/ToggleTodo";
 import { DeleteTodo } from "@features/todo/DeleteTodo";
-import { useTheme } from "@app/providers/ThemeProvider";
-import { useTodosQuery } from "@shared/hooks/useTodosQuery";
 
 const { Text } = Typography;
 
@@ -14,11 +14,13 @@ interface TodoItemProps {
 }
 
 export const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
+	const dispatch = useAppDispatch();
+	const loading = useAppSelector((s) => s.todos.loading);
+	const { isDark } = useTheme();
+
 	const [isEditing, setIsEditing] = useState(false);
 	const [editText, setEditText] = useState(todo.title);
-	const inputRef = useRef<any>(null);
-	const { isDark } = useTheme();
-	const { editTodo } = useTodosQuery();
+	const inputRef = useRef<InputRef>(null);
 
 	useEffect(() => {
 		if (isEditing && inputRef.current) {
@@ -26,29 +28,43 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
 		}
 	}, [isEditing]);
 
+	useEffect(() => {
+		if (!isEditing) setEditText(todo.title);
+	}, [todo.title, isEditing]);
+
 	const handleEdit = () => {
-		setIsEditing(true);
 		setEditText(todo.title);
+		setIsEditing(true);
 	};
 
-	const handleSave = () => {
-		if (editText.trim()) {
-			editTodo({ id: todo.id, text: editText });
+	const handleSave = async () => {
+		const nextTitle = editText.trim();
+		if (!nextTitle || nextTitle === todo.title) {
+			setIsEditing(false);
+			return;
+		}
+
+		const result = await dispatch(
+			updateTodoText({
+				id: todo.id,
+				title: nextTitle,
+				description: todo.description,
+			}),
+		);
+
+		if (updateTodoText.fulfilled.match(result)) {
 			setIsEditing(false);
 		}
 	};
 
 	const handleCancel = () => {
-		setIsEditing(false);
 		setEditText(todo.title);
+		setIsEditing(false);
 	};
 
 	const handleKeyDown = (e: React.KeyboardEvent) => {
-		if (e.key === "Enter") {
-			handleSave();
-		} else if (e.key === "Escape") {
-			handleCancel();
-		}
+		if (e.key === "Enter") handleSave();
+		else if (e.key === "Escape") handleCancel();
 	};
 
 	return (
@@ -59,7 +75,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
 				justifyContent: "space-between",
 				padding: "12px 16px",
 				borderBottom: `1px solid ${isDark ? "#303030" : "#f0f0f0"}`,
-				opacity: todo.completed ? 0.7 : 1,
+				opacity: todo.isCompleted ? 0.7 : 1,
 				transition: "all 0.3s",
 			}}
 		>
@@ -73,6 +89,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
 				}}
 			>
 				<ToggleTodo todo={todo} />
+
 				{isEditing ? (
 					<div
 						style={{ display: "flex", flex: 1, gap: 8, alignItems: "center" }}
@@ -83,26 +100,30 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
 							style={{ flex: 1 }}
 							onChange={(e) => setEditText(e.target.value)}
 							onKeyDown={handleKeyDown}
+							disabled={loading}
 						/>
 						<Button
 							icon={<CheckOutlined />}
 							onClick={handleSave}
 							type="primary"
 							size="small"
+							loading={loading}
+							disabled={loading}
 						/>
 						<Button
 							icon={<CloseOutlined />}
 							onClick={handleCancel}
 							size="small"
+							disabled={loading}
 						/>
 					</div>
 				) : (
 					<Text
-						delete={todo.completed}
+						delete={todo.isCompleted}
 						style={{
 							cursor: "pointer",
 							fontSize: "16px",
-							textDecoration: todo.completed ? "line-through" : "none",
+							textDecoration: todo.isCompleted ? "line-through" : "none",
 							color: isDark ? "#ffffff" : "#000000",
 						}}
 						onDoubleClick={handleEdit}
@@ -118,6 +139,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
 					icon={<EditOutlined />}
 					onClick={handleEdit}
 					aria-label="Edit task"
+					disabled={loading || isEditing}
 				/>
 				<DeleteTodo todoId={todo.id} />
 			</Space>

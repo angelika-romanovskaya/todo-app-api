@@ -1,43 +1,29 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import { Form, Input, Button, Alert, message } from "antd";
 import { MailOutlined, LockOutlined, UserOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
-import { authApi } from "@shared/api/authApi";
-import { setToken } from "@shared/lib/tokenStorage";
 import { useTranslation } from "react-i18next";
-import { LocalStorageService } from "@shared/lib/localStorage";
-import { useAuth } from "@app/providers";
+import { useAppDispatch, useAppSelector } from "@app/hooks";
+import { Credentials, register } from "@entities/User/model";
 
 export const RegisterForm: React.FC = () => {
-	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState<string | null>(null);
-	const { login } = useAuth();
+	const dispatch = useAppDispatch();
+	const { loading, error, token } = useAppSelector((s) => s.auth);
+
 	const navigate = useNavigate();
 	const { t } = useTranslation();
 	const [messageApi, contextHolder] = message.useMessage();
 
-	const onFinish = async (values: {
-		email: string;
-		password: string;
-		name: string;
-	}) => {
-		setLoading(true);
-		setError(null);
-		try {
-			const token = await authApi.register(
-				values.email,
-				values.password,
-				values.name,
-			);
-			setToken(token);
-			LocalStorageService.set("user", JSON.stringify(values));
-			await login(values.email, values.password);
+	useEffect(() => {
+		console.log(token);
+		if (token) navigate(import.meta.env.VITE_BASE_URL);
+	}, [token, navigate]);
+
+	const onFinish = async (values: Credentials) => {
+		const result = await dispatch(register(values));
+
+		if (register.fulfilled.match(result)) {
 			messageApi.success(t("auth.successRegister"));
-			navigate("/");
-		} catch (e: any) {
-			setError(e?.response?.data?.message || t("auth.registerError"));
-		} finally {
-			setLoading(false);
 		}
 	};
 
@@ -52,6 +38,7 @@ export const RegisterForm: React.FC = () => {
 					showIcon
 				/>
 			)}
+
 			<Form onFinish={onFinish} layout="vertical" size="large">
 				<Form.Item
 					name="name"
@@ -59,6 +46,7 @@ export const RegisterForm: React.FC = () => {
 				>
 					<Input prefix={<UserOutlined />} placeholder={t("auth.name")} />
 				</Form.Item>
+
 				<Form.Item
 					name="email"
 					rules={[
@@ -71,6 +59,7 @@ export const RegisterForm: React.FC = () => {
 				>
 					<Input prefix={<MailOutlined />} placeholder="Email" />
 				</Form.Item>
+
 				<Form.Item
 					name="password"
 					rules={[
@@ -82,12 +71,14 @@ export const RegisterForm: React.FC = () => {
 						placeholder={t("auth.password")}
 					/>
 				</Form.Item>
+
 				<Form.Item>
 					<Button type="primary" htmlType="submit" loading={loading} block>
 						{t("auth.registerButton")}
 					</Button>
 				</Form.Item>
 			</Form>
+
 			<div style={{ textAlign: "center" }}>
 				{t("auth.haveAccount")} <Link to="/login">{t("auth.login")}</Link>
 			</div>

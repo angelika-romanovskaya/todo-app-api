@@ -2,29 +2,35 @@ import React, { useState } from "react";
 import { Input, Button, Space, message } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
-import { useTodosQuery } from "@shared/hooks/useTodosQuery";
+import { useAppDispatch, useAppSelector } from "@app/hooks";
+import { createTodo } from "@entities/Todo/model";
 
 export const AddTodo: React.FC = () => {
 	const [text, setText] = useState("");
 	const [messageApi, contextHolder] = message.useMessage();
 	const { t } = useTranslation();
-	const {addTodo} = useTodosQuery()
 
-	const handleSubmit = () => {
+	const dispatch = useAppDispatch();
+	const loading = useAppSelector((s) => s.todos.loading);
+
+	const handleSubmit = async () => {
 		if (!text.trim()) {
 			messageApi.warning(t("add.warning"));
 			return;
 		}
 
-		addTodo(text);
-		setText("");
-		messageApi.success(t("add.success"));
+		const result = await dispatch(
+			createTodo({ title: text.trim(), description: "" }),
+		);
+
+		if (createTodo.fulfilled.match(result)) {
+			setText("");
+			messageApi.success(t("add.success"));
+		}
 	};
 
 	const handleKeyDown = (e: React.KeyboardEvent) => {
-		if (e.key === "Enter") {
-			handleSubmit();
-		}
+		if (e.key === "Enter") handleSubmit();
 	};
 
 	return (
@@ -38,12 +44,15 @@ export const AddTodo: React.FC = () => {
 					onKeyDown={handleKeyDown}
 					size="large"
 					aria-label="New task input"
+					disabled={loading}
 				/>
 				<Button
 					type="primary"
 					icon={<PlusOutlined />}
 					onClick={handleSubmit}
 					size="large"
+					loading={loading}
+					disabled={loading || !text.trim()}
 				>
 					{t("add.button")}
 				</Button>

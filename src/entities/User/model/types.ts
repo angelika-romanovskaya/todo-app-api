@@ -1,5 +1,7 @@
-export interface IUser {
-	email: string;
-	password?: string;
-	name?: string;
+
+export interface AuthState {
+	token: string | null;
+	user: string | null;
+	loading: boolean;
+	error: string | null;
 }

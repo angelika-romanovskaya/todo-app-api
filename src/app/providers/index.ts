@@ -1,4 +1,3 @@
 export { AntdProvider } from "./AntdProvider";
 export { ThemeProvider, useTheme } from "./ThemeProvider";
-export { AuthProvider, useAuth } from "./AuthProvider";
-export { QueryProvider } from "./QueryProvider";
+export { StoreProvider } from "./StoreProvider";
